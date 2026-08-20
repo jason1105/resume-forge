@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>吕伟 · Resume Portfolio</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    /* ── Reset & Variables ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:   #fafaf7;
+      --white:   #ffffff;
+      --ink:     #1a1a1a;
+      --muted:   #6b6b6b;
+      --border:  #e4e2dd;
+      --accent:  #2563eb;
+      --accent-light: #eff4ff;
+      --radius:  8px;
+      --shadow:  0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+      --font-sans: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", "Fira Code", monospace;
+    }
+
+    /* ── Base ──────────────────────────────────────────────────────── */
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── Header ────────────────────────────────────────────────────── */
+    .site-header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    .site-logo {
+      font-size: .85rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .site-logo span { color: var(--ink); }
+
+    /* ── Tab Nav ───────────────────────────────────────────────────── */
+    .tab-nav {
+      display: flex;
+      gap: .25rem;
+      background: var(--cream);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tab-nav::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      padding: .75rem 1.25rem;
+      border: none;
+      background: none;
+      font-family: var(--font-sans);
+      font-size: .875rem;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: color .15s, border-color .15s;
+    }
+    .tab-btn:hover { color: var(--ink); }
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* ── Main layout ───────────────────────────────────────────────── */
+    .main-wrapper {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* ── Action bar ────────────────────────────────────────────────── */
+    .action-bar {
+      display: flex;
+      justify-content: flex-end;
+      gap: .75rem;
+      margin-bottom: 1.5rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .45rem 1rem;
+      border-radius: var(--radius);
+      font-family: var(--font-sans);
+      font-size: .8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: background .15s, border-color .15s, box-shadow .15s;
+      text-decoration: none;
+    }
+    .btn-ghost {
+      background: var(--white);
+      color: var(--ink);
+    }
+    .btn-ghost:hover {
+      background: var(--cream);
+      border-color: #c9c7c0;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+      border-color: #1d4ed8;
+    }
+
+    /* ── Resume card ───────────────────────────────────────────────── */
+    .resume-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 3rem 3.5rem;
+    }
+
+    /* ── Loading / error states ────────────────────────────────────── */
+    .state-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 280px;
+      gap: 1rem;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+    .spinner {
+      width: 28px; height: 28px;
+      border: 2.5px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Markdown typography ───────────────────────────────────────── */
+    .md h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      margin-bottom: .35rem;
+      line-height: 1.2;
+    }
+    .md h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin: 2rem 0 .75rem;
+      padding-bottom: .4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .md h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 1.25rem 0 .3rem;
+    }
+    .md p {
+      font-size: .9375rem;
+      color: #333;
+      margin-bottom: .6rem;
+    }
+    .md strong { color: var(--ink); }
+    .md em { color: var(--muted); font-style: normal; font-size: .875rem; }
+    .md ul {
+      padding-left: 1.25rem;
+      margin-bottom: .75rem;
+    }
+    .md li {
+      font-size: .9375rem;
+      color: #333;
+      margin-bottom: .3rem;
+      line-height: 1.65;
+    }
+    .md hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.5rem 0;
+    }
+    .md table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .875rem;
+      margin: .75rem 0 1rem;
+    }
+    .md th {
+      text-align: left;
+      font-weight: 600;
+      padding: .5rem .75rem;
+      background: var(--cream);
+      border: 1px solid var(--border);
+      color: var(--ink);
+    }
+    .md td {
+      padding: .45rem .75rem;
+      border: 1px solid var(--border);
+      color: #444;
+      vertical-align: top;
+    }
+    .md code {
+      font-family: var(--font-mono);
+      font-size: .82em;
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: .1em .35em;
+      border-radius: 3px;
+    }
+    .md blockquote {
+      border-left: 3px solid var(--accent);
+      padding-left: 1rem;
+      color: var(--muted);
+      margin: .75rem 0;
+    }
+
+    /* ── Badge after h1 (role / contact line) ─────────────────────── */
+    .md h1 + p {
+      font-size: .9rem;
+      color: var(--muted);
+      margin-bottom: .25rem;
+    }
+
+    /* ── Footer ────────────────────────────────────────────────────── */
+    .site-footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: .8rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+    .site-footer a { color: var(--muted); text-decoration: underline; }
+
+    /* ── Print styles ──────────────────────────────────────────────── */
+    @media print {
+      .site-header, .tab-nav, .action-bar, .site-footer { display: none !important; }
+      body { background: #fff; }
+      .main-wrapper { padding: 0; max-width: 100%; }
+      .resume-card {
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+        padding: 1.5cm 1.5cm;
+      }
+      .tab-panel { display: none !important; }
+      .tab-panel.active { display: block !important; }
+    }
+
+    /* ── Responsive ────────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .resume-card { padding: 1.5rem 1.25rem; }
+      .md h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="site-logo">Resume&thinsp;<span>Forge</span></div>
+  <div style="font-size:.8rem;color:var(--muted);">吕伟 · Wei Lv</div>
+</header>
+
+<!-- ── Tab navigation ─────────────────────────────────────────────── -->
+<nav class="tab-nav" role="tablist" aria-label="Resume versions">
+  <button class="tab-btn active" role="tab" aria-selected="true"
+    data-file="output/resume_zh.md" data-tab="zh">
+    中文完整版
+  </button>
+  <button class="tab-btn" role="tab" aria-selected="false"
+    data-file="output/resume_en.md" data-tab="en">
+    English Full
+  </button>
+  <button class="tab-btn" role="tab" aria-selected="false"
+    data-file="output/resume_onepage_zh.md" data-tab="zh1">
+    中文一页版
+  </button>
+  <button class="tab-btn" role="tab" aria-selected="false"
+    data-file="output/resume_onepage_en.md" data-tab="en1">
+    English One-Page
+  </button>
+</nav>
+
+<!-- ── Main ───────────────────────────────────────────────────────── -->
+<main class="main-wrapper">
+
+  <!-- Action bar -->
+  <div class="action-bar">
+    <button class="btn btn-ghost" id="btn-download">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
+           viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      Download .md
+    </button>
+    <button class="btn btn-primary" id="btn-print">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
+           viewBox="0 0 24 24">
+        <polyline points="6 9 6 2 18 2 18 9"/>
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+        <rect x="6" y="14" width="12" height="8"/>
+      </svg>
+      Print / PDF
+    </button>
+  </div>
+
+  <!-- Resume card -->
+  <div class="resume-card">
+    <div id="resume-output" class="md">
+      <div class="state-box">
+        <div class="spinner"></div>
+        <span>Loading resume…</span>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── Footer ─────────────────────────────────────────────────────── -->
+<footer class="site-footer">
+  Auto-generated by <a href="https://github.com/lvw1105/resume-forge">resume-forge</a>
+  using Claude AI · Source of truth: <code>data/resume.yml</code>
+</footer>
+
+<script>
+  /* ── State ──────────────────────────────────────────────────────── */
+  let currentFile  = 'output/resume_zh.md';
+  let currentLabel = '中文完整版';
+  const cache      = {};
+
+  /* ── Fallback content (shown if fetch fails, e.g. file:// protocol) */
+  const FALLBACK = {
+    'output/resume_zh.md': `# 吕伟\n\n**资深研发工程师**\n\n- 邮箱：lvw1105@gmail.com\n- 所在地：中国\n\n---\n\n## 个人简介\n\n8 年+ Java/React 全栈开发经验，专注企业级系统架构与 AI 驱动开发工具链。\n\n---\n\n## 工作经历\n\n### Tsintergy — 资深研发工程师（2020 - 至今）\n\n- 主导 tsie-tunnel 项目：AES-CTR 加密透明隧道，支持 JCEF/Firefox 双渲染引擎\n- 构建 Spring Boot 微服务平台，峰值支撑数百并发，响应时间降低 85%\n- 引入 AI 辅助开发工具链，代码审查效率提升 40%\n\n---\n\n## 技能\n\nJava · TypeScript · Python · Spring Boot · React · Docker · MySQL · Redis\n`,
+
+    'output/resume_en.md': `# Wei Lv\n\n**Senior Software Engineer**\n\n- Email: lvw1105@gmail.com\n- Location: China\n\n---\n\n## Professional Summary\n\n8+ years of full-stack expertise (Java / React) delivering enterprise microservices and AI-augmented developer tooling.\n\n---\n\n## Experience\n\n### Tsintergy — Senior Software Engineer (2020 – Present)\n\n- Designed tsie-tunnel: AES-CTR encrypted transparent tunnel, dual-engine (JCEF/Firefox) support\n- Built Spring Boot microservices platform; 85% latency reduction, hundreds of concurrent users\n- Integrated Claude API into PR review workflow; +40% code review throughput\n\n---\n\n## Skills\n\nJava · TypeScript · Python · Spring Boot · React · Docker · MySQL · Redis\n`,
+
+    'output/resume_onepage_zh.md': `# 吕伟 — 资深研发工程师\n\nlvw1105@gmail.com | 中国\n\n---\n\n## 工作经历\n\n### Tsintergy（2020 - 至今）\n\n- AES-CTR 加密隧道（tsie-tunnel），双渲染引擎支持\n- Spring Boot 微服务平台，响应时间降低 85%\n- AI 辅助 PR 审查，效率提升 40%，测试覆盖率 42% → 78%\n\n---\n\n**技能**：Java · TypeScript · Python · Spring Boot · React · Docker · MySQL · Redis\n`,
+
+    'output/resume_onepage_en.md': `# Wei Lv — Senior Software Engineer\n\nlvw1105@gmail.com | China\n\n---\n\n## Experience\n\n### Tsintergy (2020 – Present)\n\n- tsie-tunnel: AES-CTR encrypted tunnel, JCEF/Firefox dual-engine; <2 ms overhead\n- Microservices: 85% latency cut, hundreds of concurrent users\n- AI toolchain: +40% review throughput; test coverage 42% → 78%\n\n---\n\n**Skills**: Java · TypeScript · Python · Spring Boot · React · Docker · MySQL · Redis\n`,
+  };
+
+  /* ── Render ─────────────────────────────────────────────────────── */
+  const output = document.getElementById('resume-output');
+
+  function showLoading() {
+    output.innerHTML = '<div class="state-box"><div class="spinner"></div><span>Loading…</span></div>';
+  }
+
+  function showError(msg) {
+    output.innerHTML = `<div class="state-box">
+      <svg width="24" height="24" fill="none" stroke="#e55" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span>${msg}</span></div>`;
+  }
+
+  function renderMarkdown(md) {
+    output.innerHTML = marked.parse(md);
+  }
+
+  async function loadResume(file) {
+    if (cache[file]) { renderMarkdown(cache[file]); return; }
+    showLoading();
+    try {
+      const res = await fetch(file);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      cache[file] = text;
+      renderMarkdown(text);
+    } catch (err) {
+      // Graceful fallback for local file:// browsing
+      if (FALLBACK[file]) {
+        cache[file] = FALLBACK[file];
+        renderMarkdown(FALLBACK[file]);
+        const note = document.createElement('p');
+        note.style.cssText = 'font-size:.75rem;color:#999;margin-top:2rem;text-align:center;';
+        note.textContent = '(Showing embedded fallback — open via a web server for live content)';
+        output.appendChild(note);
+      } else {
+        showError(`Could not load ${file}: ${err.message}`);
+      }
+    }
+  }
+
+  /* ── Tab switching ──────────────────────────────────────────────── */
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      currentFile  = btn.dataset.file;
+      currentLabel = btn.textContent.trim();
+      loadResume(currentFile);
+    });
+  });
+
+  /* ── Print ──────────────────────────────────────────────────────── */
+  document.getElementById('btn-print').addEventListener('click', () => window.print());
+
+  /* ── Download .md ───────────────────────────────────────────────── */
+  document.getElementById('btn-download').addEventListener('click', async () => {
+    let text = cache[currentFile];
+    if (!text) {
+      try {
+        const res = await fetch(currentFile);
+        text = await res.text();
+        cache[currentFile] = text;
+      } catch {
+        text = FALLBACK[currentFile] || '';
+      }
+    }
+    const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = currentFile.split('/').pop();
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  /* ── Init ───────────────────────────────────────────────────────── */
+  loadResume(currentFile);
+</script>
+</body>
+</html>

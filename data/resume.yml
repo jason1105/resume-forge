@@ -1,0 +1,32 @@
+personal:
+  name: "吕伟"
+  title: "资深研发工程师"
+  email: "lvw1105@gmail.com"
+  location: "China"
+  summary: "8年+ Java/React全栈开发经验，专注企业级系统架构与AI驱动开发工具链"
+
+experience:
+  - company: "Tsintergy"
+    role: "资深研发工程师"
+    period: "2020 - 至今"
+    highlights:
+      - "主导 tsie-tunnel 项目：设计 AES-CTR 加密透明隧道替代 HTTP，支持双渲染引擎（JCEF/Firefox）"
+      - "构建企业级 Spring Boot 微服务平台，峰值支持数百并发"
+      - "引入 AI 辅助开发工具链，提升团队代码审查效率 40%"
+
+skills:
+  languages: ["Java", "TypeScript", "Python", "Rust（学习中）"]
+  frameworks: ["Spring Boot", "React", "Next.js"]
+  tools: ["Docker", "Git", "Maven", "GitHub Actions"]
+  databases: ["MySQL", "Redis"]
+
+education:
+  - degree: "计算机科学与技术"
+    school: "本科"
+    year: "2015"
+
+languages:
+  - name: "中文"
+    level: "母语"
+  - name: "英文"
+    level: "专业工作"
