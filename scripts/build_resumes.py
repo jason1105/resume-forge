@@ -7,13 +7,13 @@ Usage:
     python scripts/build_resumes.py
 
 Environment variable required:
-    ANTHROPIC_API_KEY
+    OPENROUTER_API_KEY
 """
 
 import os
 import sys
 import yaml
-import anthropic
+from openai import OpenAI
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -115,7 +115,8 @@ VARIANTS = [
     },
 ]
 
-MODEL = "claude-haiku-4-5-20251001"
+MODEL = os.environ.get("OPENROUTER_MODEL") or "deepseek/deepseek-chat"
+OPENROUTER_BASE = "https://openrouter.ai/api/v1"
 
 
 # ---------------------------------------------------------------------------
@@ -131,15 +132,15 @@ def yaml_dump(data: dict) -> str:
     return yaml.dump(data, allow_unicode=True, default_flow_style=False, sort_keys=False)
 
 
-def generate_variant(client: anthropic.Anthropic, yaml_text: str, variant: dict) -> str:
+def generate_variant(client: OpenAI, yaml_text: str, variant: dict) -> str:
     prompt = variant["prompt_template"].format(yaml_data=yaml_text)
     print(f"  Generating: {variant['label']} ...")
-    message = client.messages.create(
+    message = client.chat.completions.create(
         model=MODEL,
         max_tokens=4096,
         messages=[{"role": "user", "content": prompt}],
     )
-    return message.content[0].text
+    return message.choices[0].message.content
 
 
 def write_output(filename: str, content: str) -> None:
@@ -151,9 +152,9 @@ def write_output(filename: str, content: str) -> None:
 
 
 def main():
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("OPENROUTER_API_KEY")
     if not api_key:
-        print("ERROR: ANTHROPIC_API_KEY environment variable is not set.", file=sys.stderr)
+        print("ERROR: OPENROUTER_API_KEY environment variable is not set.", file=sys.stderr)
         sys.exit(1)
 
     if not os.path.exists(DATA_FILE):
@@ -164,7 +165,7 @@ def main():
     resume_data = load_resume_data(DATA_FILE)
     yaml_text = yaml_dump(resume_data)
 
-    client = anthropic.Anthropic(api_key=api_key)
+    client = OpenAI(base_url=OPENROUTER_BASE, api_key=api_key)
 
     print(f"\nGenerating resume variants using model: {MODEL}")
     for variant in VARIANTS:

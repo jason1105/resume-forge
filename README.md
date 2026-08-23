@@ -42,8 +42,8 @@ git remote add origin https://github.com/<your-username>/resume-forge.git
 
 In your GitHub repository: **Settings → Secrets and variables → Actions → New repository secret**
 
-- Name: `ANTHROPIC_API_KEY`
-- Value: your Anthropic API key (get one at https://console.anthropic.com)
+- Name: `OPENROUTER_API_KEY`
+- Value: your OpenRouter API key (get one at https://openrouter.ai/keys)
 
 ### 3. Enable GitHub Pages
 
@@ -64,8 +64,8 @@ The workflow triggers automatically because `data/resume.yml` changed. Watch it 
 ## Running locally
 
 ```bash
-pip install anthropic pyyaml
-export ANTHROPIC_API_KEY=sk-ant-...
+pip install openai pyyaml
+export OPENROUTER_API_KEY=sk-or-...
 python scripts/build_resumes.py
 ```
 
@@ -80,7 +80,7 @@ python -m http.server 8080
 
 - **Content**: edit `data/resume.yml`.
 - **Prompts**: tweak the `PROMPT_*` strings in `scripts/build_resumes.py` to adjust tone, length, or format.
-- **Model**: change the `MODEL` constant in `build_resumes.py`. Currently uses `claude-haiku-4-5-20251001` for speed and cost efficiency.
+- **Model**: set the `OPENROUTER_MODEL` repository variable (Settings → Secrets and variables → Actions → Variables). Defaults to `deepseek/deepseek-chat`.
 - **Styling**: all design is contained in `index.html` — edit the `<style>` block to change fonts, colors, or layout.
 
 ## Triggering a rebuild without changing resume.yml
