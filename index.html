@@ -354,15 +354,8 @@
   const cache      = {};
 
   /* ── Fallback content (shown if fetch fails, e.g. file:// protocol) */
-  const FALLBACK = {
-    'output/resume_zh.md': `# 吕伟\n\n**资深研发工程师**\n\n- 邮箱：lvw1105@gmail.com\n- 所在地：中国\n\n---\n\n## 个人简介\n\n8 年+ Java/React 全栈开发经验，专注企业级系统架构与 AI 驱动开发工具链。\n\n---\n\n## 工作经历\n\n### Tsintergy — 资深研发工程师（2020 - 至今）\n\n- 主导 tsie-tunnel 项目：AES-CTR 加密透明隧道，支持 JCEF/Firefox 双渲染引擎\n- 构建 Spring Boot 微服务平台，峰值支撑数百并发，响应时间降低 85%\n- 引入 AI 辅助开发工具链，代码审查效率提升 40%\n\n---\n\n## 技能\n\nJava · TypeScript · Python · Spring Boot · React · Docker · MySQL · Redis\n`,
-
-    'output/resume_en.md': `# Wei Lv\n\n**Senior Software Engineer**\n\n- Email: lvw1105@gmail.com\n- Location: China\n\n---\n\n## Professional Summary\n\n8+ years of full-stack expertise (Java / React) delivering enterprise microservices and AI-augmented developer tooling.\n\n---\n\n## Experience\n\n### Tsintergy — Senior Software Engineer (2020 – Present)\n\n- Designed tsie-tunnel: AES-CTR encrypted transparent tunnel, dual-engine (JCEF/Firefox) support\n- Built Spring Boot microservices platform; 85% latency reduction, hundreds of concurrent users\n- Integrated Claude API into PR review workflow; +40% code review throughput\n\n---\n\n## Skills\n\nJava · TypeScript · Python · Spring Boot · React · Docker · MySQL · Redis\n`,
-
-    'output/resume_onepage_zh.md': `# 吕伟 — 资深研发工程师\n\nlvw1105@gmail.com | 中国\n\n---\n\n## 工作经历\n\n### Tsintergy（2020 - 至今）\n\n- AES-CTR 加密隧道（tsie-tunnel），双渲染引擎支持\n- Spring Boot 微服务平台，响应时间降低 85%\n- AI 辅助 PR 审查，效率提升 40%，测试覆盖率 42% → 78%\n\n---\n\n**技能**：Java · TypeScript · Python · Spring Boot · React · Docker · MySQL · Redis\n`,
-
-    'output/resume_onepage_en.md': `# Wei Lv — Senior Software Engineer\n\nlvw1105@gmail.com | China\n\n---\n\n## Experience\n\n### Tsintergy (2020 – Present)\n\n- tsie-tunnel: AES-CTR encrypted tunnel, JCEF/Firefox dual-engine; <2 ms overhead\n- Microservices: 85% latency cut, hundreds of concurrent users\n- AI toolchain: +40% review throughput; test coverage 42% → 78%\n\n---\n\n**Skills**: Java · TypeScript · Python · Spring Boot · React · Docker · MySQL · Redis\n`,
-  };
+  // 不再内嵌简历副本：唯一真相源是 data/resume.yml，输出由工作流生成
+  const FALLBACK = {};
 
   /* ── Render ─────────────────────────────────────────────────────── */
   const output = document.getElementById('resume-output');

@@ -32,8 +32,8 @@ PROMPT_ZH_FULL = """
 你是一位专业的简历撰写专家。请根据以下 YAML 格式的个人信息，生成一份详尽的中文简历（Markdown 格式），
 内容相当于约两页纸。要求：
 - 使用专业、正式的中文表达
-- 按照：个人信息 → 个人简介 → 工作经历（详细展开每段经历，包含技术细节和成果数字）→ 技能 → 教育背景 → 语言能力 的顺序排列
-- 工作经历部分需对每条高亮内容进行扩写，补充合理的技术细节（如具体使用的技术栈、架构决策、解决的挑战、量化成果）
+- 按照：个人信息 → 个人简介 → 工作经历 → 技能 → 教育背景 → 语言能力 的顺序排列
+- 工作经历部分只能对 YAML 中已有的内容做措辞润色和结构重组，不得新增事实
 - 技能部分用分类表格或分类列表呈现
 - 整体风格简洁、专业，适合投递至中国一线互联网/科技企业
 
@@ -47,10 +47,9 @@ PROMPT_EN_FULL = """
 You are a professional resume writer. Based on the YAML data below, generate a comprehensive English resume
 in Markdown format, equivalent to about two pages. Requirements:
 - Use polished, professional English suitable for senior engineering roles
-- Order: Personal Info → Professional Summary → Work Experience (expanded with technical depth and metrics)
-  → Skills → Education → Languages
-- For each experience highlight, expand with reasonable technical details: architecture choices, specific
-  technologies, challenges solved, quantified impact
+- Order: Personal Info → Professional Summary → Work Experience → Skills → Education → Languages
+- For each experience highlight, only rephrase and restructure what the YAML already states.
+  Do not add facts
 - Present skills in categorized lists or tables
 - Style: clean, ATS-friendly, appropriate for top-tier tech companies globally
 
@@ -86,6 +85,18 @@ Resume data (YAML):
 {yaml_data}
 
 Output only the Markdown content, no preamble or commentary.
+"""
+
+FACT_GUARD = """
+
+=== 事实约束（最高优先级，覆盖以上任何要求）===
+这是一份真实求职者的简历，任何编造都可能在面试或背调中造成严重后果。
+1. 只能使用上面 YAML 中明确写出的事实。严禁新增、推断或"合理补充"任何内容。
+2. 严禁编造任何数字：百分比、耗时、QPS、并发量、覆盖率、延迟、吞吐、人数、时长。
+   YAML 里没有的数字，一个都不许出现。
+3. 严禁编造 YAML 未提及的技术名词、中间件、框架、项目或职责。
+4. 如果某段经历信息很少，就让它保持简短——宁可简历短，也不许填充虚构内容。
+5. 你可以做的只有：翻译、措辞润色、结构重组、条目排序。
 """
 
 VARIANTS = [
@@ -133,7 +144,7 @@ def yaml_dump(data: dict) -> str:
 
 
 def generate_variant(client: OpenAI, yaml_text: str, variant: dict) -> str:
-    prompt = variant["prompt_template"].format(yaml_data=yaml_text)
+    prompt = variant["prompt_template"].format(yaml_data=yaml_text) + FACT_GUARD
     print(f"  Generating: {variant['label']} ...")
     message = client.chat.completions.create(
         model=MODEL,
