@@ -126,8 +126,8 @@ VARIANTS = [
     },
 ]
 
-MODEL = os.environ.get("OPENROUTER_MODEL") or "deepseek/deepseek-chat"
-OPENROUTER_BASE = "https://openrouter.ai/api/v1"
+MODEL = os.environ.get("LLM_MODEL") or os.environ.get("OPENROUTER_MODEL") or "deepseek-v4-flash"
+OPENROUTER_BASE = os.environ.get("LLM_BASE_URL") or "https://api.deepseek.com"
 
 
 # ---------------------------------------------------------------------------
@@ -163,9 +163,9 @@ def write_output(filename: str, content: str) -> None:
 
 
 def main():
-    api_key = os.environ.get("OPENROUTER_API_KEY")
+    api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENROUTER_API_KEY")
     if not api_key:
-        print("ERROR: OPENROUTER_API_KEY environment variable is not set.", file=sys.stderr)
+        print("ERROR: LLM_API_KEY (or OPENROUTER_API_KEY) environment variable is not set.", file=sys.stderr)
         sys.exit(1)
 
     if not os.path.exists(DATA_FILE):
