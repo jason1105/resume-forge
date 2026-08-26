@@ -1,45 +1,45 @@
 # 吕伟
 
 **资深研发工程师**  
-邮箱：lvw1105@gmail.com  
-所在地：中国
+邮箱：lvw1105@gmail.com | 所在地：中国  
 
 ---
 
 ## 个人简介
 
-8年以上 Java/React 全栈开发经验，专注企业级系统架构与 AI 驱动开发工具链。
+拥有8年以上Java/React全栈开发经验，专注企业级系统架构与AI驱动开发工具链。具备从底层通信设计到前端渲染引擎、再到微服务平台建设的完整技术视野，致力于通过工程化手段提升研发效率与系统稳定性。
 
 ---
 
 ## 工作经历
 
-### Tsintergy — 资深研发工程师（2020 年至今）
+### Tsintergy — 资深研发工程师  
+*2020年至今*
 
-- 主导 **tsie-tunnel** 项目：设计基于 AES-CTR 加密的透明隧道方案以替代 HTTP，支持 JCEF/Firefox 双渲染引擎。
-- 构建企业级 Spring Boot 微服务平台，峰值支持数百并发。
-- 引入 AI 辅助开发工具链，提升团队代码审查效率 40%。
+- 主导 tsie-tunnel 项目：设计基于 AES-CTR 加密的透明隧道以替代 HTTP，并支持 JCEF / Firefox 双渲染引擎，保障通信安全与多环境兼容性。
+- 构建企业级 Spring Boot 微服务平台，支撑峰值数百并发的业务场景，确保系统在高负载下的稳定运行。
+- 引入 AI 辅助开发工具链，优化代码审查流程，提升团队代码审查效率 40%。
 
 ---
 
 ## 技能
 
 | 分类 | 技能 |
-| --- | --- |
-| **编程语言** | Java、TypeScript、Python、Rust（学习中） |
-| **框架** | Spring Boot、React、Next.js |
-| **工具** | Docker、Git、Maven、GitHub Actions |
-| **数据库** | MySQL、Redis |
+|---|---|
+| 编程语言 | Java、TypeScript、Python、Rust（学习中） |
+| 框架 | Spring Boot、React、Next.js |
+| 工具 | Docker、Git、Maven、GitHub Actions |
+| 数据库 | MySQL、Redis |
 
 ---
 
 ## 教育背景
 
-- **计算机科学与技术**（本科），2015 年
+本科 · 计算机科学与技术，2015年毕业
 
 ---
 
 ## 语言能力
 
-- **中文**：母语
-- **英文**：专业工作水平
+- 中文：母语
+- 英文：专业工作水平
