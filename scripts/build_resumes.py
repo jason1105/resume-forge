@@ -195,26 +195,37 @@ def yaml_dump(data: dict) -> str:
     return yaml.dump(data, allow_unicode=True, default_flow_style=False, sort_keys=False)
 
 
+# 认为“有效产出”的最小字符数——低于此视为空/截断响应
+MIN_CONTENT_LEN = 80
+
+
+def _chat_with_retry(client: OpenAI, prompt: str, label: str, attempts: int = 3) -> str:
+    """调用模型，对空/过短响应重试。返回去除首尾空白后的文本（可能仍为空，由调用方决定如何处理）。"""
+    last = ""
+    for i in range(attempts):
+        message = client.chat.completions.create(
+            model=MODEL,
+            max_tokens=4096,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        content = (message.choices[0].message.content or "").strip()
+        if len(content) >= MIN_CONTENT_LEN:
+            return content
+        last = content
+        print(f"    (尝试 {i + 1}/{attempts}) {label} 返回空/过短响应（{len(content)} 字），重试…")
+    return last
+
+
 def generate_variant(client: OpenAI, yaml_text: str, variant: dict) -> str:
     prompt = variant["prompt_template"].format(yaml_data=yaml_text) + FACT_GUARD
     print(f"  Generating: {variant['label']} ...")
-    message = client.chat.completions.create(
-        model=MODEL,
-        max_tokens=4096,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    return message.choices[0].message.content
+    return _chat_with_retry(client, prompt, variant["label"])
 
 
 def generate_targeted_variant(client: OpenAI, yaml_text: str, jd: str, variant: dict) -> str:
     prompt = variant["prompt_template"].format(yaml_data=yaml_text, jd=jd) + FACT_GUARD
     print(f"  Generating: {variant['label']} ...")
-    message = client.chat.completions.create(
-        model=MODEL,
-        max_tokens=4096,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    return message.choices[0].message.content
+    return _chat_with_retry(client, prompt, variant["label"])
 
 
 def write_output(filename: str, content: str) -> None:
@@ -223,6 +234,15 @@ def write_output(filename: str, content: str) -> None:
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)
     print(f"  Written: {path}")
+
+
+def write_if_valid(filename: str, content: str, label: str, skipped: list) -> None:
+    """仅在响应有效时写入；空/过短响应则跳过并保留已有文件，绝不用空内容覆盖好内容。"""
+    if not content or len(content.strip()) < MIN_CONTENT_LEN:
+        print(f"  跳过 {label}：响应为空/过短，保留已有文件（不覆盖）", file=sys.stderr)
+        skipped.append(label)
+        return
+    write_output(filename, content)
 
 
 def main():
@@ -241,11 +261,13 @@ def main():
 
     client = OpenAI(base_url=OPENROUTER_BASE, api_key=api_key)
 
+    skipped: list = []
+
     print(f"\nGenerating resume variants using model: {MODEL}")
     for variant in VARIANTS:
         try:
             content = generate_variant(client, yaml_text, variant)
-            write_output(variant["filename"], content)
+            write_if_valid(variant["filename"], content, variant["label"], skipped)
         except Exception as e:
             print(f"  ERROR generating {variant['label']}: {e}", file=sys.stderr)
             sys.exit(1)
@@ -259,14 +281,20 @@ def main():
         for variant in TARGETED_VARIANTS:
             try:
                 content = generate_targeted_variant(client, yaml_text, jd_full, variant)
-                write_output(variant["filename"], content)
+                write_if_valid(variant["filename"], content, variant["label"], skipped)
             except Exception as e:
                 print(f"  ERROR generating {variant['label']}: {e}", file=sys.stderr)
                 sys.exit(1)
     else:
         print("\nNo JD_TEXT provided — skipping targeted variants.")
 
-    print("\nAll resume variants generated successfully.")
+    if skipped:
+        print(f"\n⚠️  {len(skipped)} 个版本因空/过短响应被跳过（已保留旧内容，未覆盖）："
+              f"{', '.join(skipped)}", file=sys.stderr)
+        print("   常见原因：LLM 供应商额度不足/限流，或该提示词被拒。请检查 DeepSeek 余额与限流。",
+              file=sys.stderr)
+
+    print("\nAll resume variants processed.")
 
 
 if __name__ == "__main__":
