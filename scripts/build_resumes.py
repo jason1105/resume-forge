@@ -87,6 +87,42 @@ Resume data (YAML):
 Output only the Markdown content, no preamble or commentary.
 """
 
+PROMPT_ZH_TARGETED = """
+你是一位专业的简历撰写专家。下面给出一段招聘 JD 和一份 YAML 个人信息。
+请生成一份**针对该 JD 定向优化**的中文简历（Markdown 格式），要求：
+- 从 YAML 已有事实中，挑选并前置与该 JD 最相关的经历、技能与关键词
+- 措辞贴合 JD 的用语与关注点，但严禁改变或夸大事实
+- 与该岗位关系不大的次要内容可以弱化或省略
+- 结构：个人信息 → 针对性简介（点明与该岗位的匹配点）→ 相关工作经历 → 技能 → 教育背景 → 语言能力
+- 整体简洁、专业，适合投递中国一线互联网/科技企业
+
+招聘 JD：
+{jd}
+
+简历数据（YAML）：
+{yaml_data}
+
+请直接输出 Markdown 内容，不要有任何前缀说明。
+"""
+
+PROMPT_EN_TARGETED = """
+You are a professional resume writer. Below is a job description (JD) and a candidate's YAML profile.
+Generate a resume in Markdown, **tailored to this JD**. Requirements:
+- From the facts already in the YAML, surface and lead with the experience, skills and keywords most relevant to this JD
+- Mirror the JD's terminology and priorities, but never alter or overstate the facts
+- De-emphasize or omit content not relevant to the role
+- Order: Personal Info → Targeted Summary (state the fit for this role) → Relevant Experience → Skills → Education → Languages
+- Clean, ATS-friendly, suitable for top-tier tech companies
+
+Job description (JD):
+{jd}
+
+Resume data (YAML):
+{yaml_data}
+
+Output only the Markdown content, no preamble or commentary.
+"""
+
 FACT_GUARD = """
 
 === 事实约束（最高优先级，覆盖以上任何要求）===
@@ -126,6 +162,22 @@ VARIANTS = [
     },
 ]
 
+# Targeted variants — only generated when a JD is supplied via JD_TEXT
+TARGETED_VARIANTS = [
+    {
+        "key": "resume_targeted_zh",
+        "filename": "resume_targeted_zh.md",
+        "prompt_template": PROMPT_ZH_TARGETED,
+        "label": "JD-Targeted Chinese Resume",
+    },
+    {
+        "key": "resume_targeted_en",
+        "filename": "resume_targeted_en.md",
+        "prompt_template": PROMPT_EN_TARGETED,
+        "label": "JD-Targeted English Resume",
+    },
+]
+
 MODEL = os.environ.get("LLM_MODEL") or os.environ.get("OPENROUTER_MODEL") or "deepseek-v4-flash"
 OPENROUTER_BASE = os.environ.get("LLM_BASE_URL") or "https://api.deepseek.com"
 
@@ -145,6 +197,17 @@ def yaml_dump(data: dict) -> str:
 
 def generate_variant(client: OpenAI, yaml_text: str, variant: dict) -> str:
     prompt = variant["prompt_template"].format(yaml_data=yaml_text) + FACT_GUARD
+    print(f"  Generating: {variant['label']} ...")
+    message = client.chat.completions.create(
+        model=MODEL,
+        max_tokens=4096,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    return message.choices[0].message.content
+
+
+def generate_targeted_variant(client: OpenAI, yaml_text: str, jd: str, variant: dict) -> str:
+    prompt = variant["prompt_template"].format(yaml_data=yaml_text, jd=jd) + FACT_GUARD
     print(f"  Generating: {variant['label']} ...")
     message = client.chat.completions.create(
         model=MODEL,
@@ -186,6 +249,22 @@ def main():
         except Exception as e:
             print(f"  ERROR generating {variant['label']}: {e}", file=sys.stderr)
             sys.exit(1)
+
+    # JD-targeted variants — only when a job description is provided
+    jd_text = (os.environ.get("JD_TEXT") or "").strip()
+    if jd_text:
+        jd_title = (os.environ.get("JD_TITLE") or "").strip()
+        jd_full = (f"目标岗位：{jd_title}\n\n" if jd_title else "") + jd_text
+        print(f"\nJD provided ({len(jd_text)} chars) — generating targeted variants")
+        for variant in TARGETED_VARIANTS:
+            try:
+                content = generate_targeted_variant(client, yaml_text, jd_full, variant)
+                write_output(variant["filename"], content)
+            except Exception as e:
+                print(f"  ERROR generating {variant['label']}: {e}", file=sys.stderr)
+                sys.exit(1)
+    else:
+        print("\nNo JD_TEXT provided — skipping targeted variants.")
 
     print("\nAll resume variants generated successfully.")
 
