@@ -306,6 +306,14 @@
     data-file="output/resume_onepage_en.md" data-tab="en1">
     English One-Page
   </button>
+  <button class="tab-btn" role="tab" aria-selected="false"
+    data-file="output/resume_targeted_zh.md" data-tab="tzh" data-targeted="1">
+    中文定向版
+  </button>
+  <button class="tab-btn" role="tab" aria-selected="false"
+    data-file="output/resume_targeted_en.md" data-tab="ten" data-targeted="1">
+    English Targeted
+  </button>
 </nav>
 
 <!-- ── Main ───────────────────────────────────────────────────────── -->
@@ -373,6 +381,20 @@
       <span>${msg}</span></div>`;
   }
 
+  function showTargetedGuide() {
+    output.innerHTML = `<div class="state-box" style="text-align:center">
+      <div style="font-size:1.05rem;color:var(--ink);margin-bottom:.4rem">尚未生成定向版简历</div>
+      <div style="max-width:34rem;line-height:1.7">
+        定向版会根据你贴的招聘 JD，从简历既有事实中挑选并突出最相关的经历与技能。<br>
+        生成方式：打开仓库的 <strong>Actions → Build Resume Variants → Run workflow</strong>，
+        在「招聘 JD 全文」里粘贴 JD 后运行；几分钟后刷新本页即可查看。
+      </div>
+      <a class="btn btn-ghost" target="_blank" rel="noopener"
+         href="https://github.com/jason1105/resume-forge/actions/workflows/build-resume.yml"
+         style="margin-top:.4rem">前往 Actions 生成 →</a>
+    </div>`;
+  }
+
   function renderMarkdown(md) {
     output.innerHTML = marked.parse(md);
   }
@@ -387,6 +409,8 @@
       cache[file] = text;
       renderMarkdown(text);
     } catch (err) {
+      // Targeted resume not generated yet — show how to create it
+      if (file.includes('targeted')) { showTargetedGuide(); return; }
       // Graceful fallback for local file:// browsing
       if (FALLBACK[file]) {
         cache[file] = FALLBACK[file];

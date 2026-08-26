@@ -7,6 +7,15 @@ on:
     paths:
       - "data/resume.yml"
   workflow_dispatch:
+    inputs:
+      jd_text:
+        description: "招聘 JD 全文（填了才生成定向版简历；留空只重建常规版本）"
+        required: false
+        type: string
+      jd_title:
+        description: "目标岗位名称（可选，会写进定向简历标题）"
+        required: false
+        type: string
 
 permissions:
   issues: write   # 失败告警需要开 issue
@@ -46,6 +55,9 @@ jobs:
           # 过渡期保留 OpenRouter 兜底，切稳后可删
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
+          # JD 定向：仅在手动触发并填写 jd_text 时生成定向版简历
+          JD_TEXT: ${{ github.event.inputs.jd_text }}
+          JD_TITLE: ${{ github.event.inputs.jd_title }}
         run: |
           python scripts/build_resumes.py
 
