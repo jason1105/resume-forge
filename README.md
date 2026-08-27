@@ -5,7 +5,7 @@ Auto-generates multiple resume versions from a single YAML source of truth, publ
 ## How it works
 
 1. Edit `data/resume.yml` — the single source of truth for all resume content.
-2. Push to `main`. GitHub Actions detects the change, calls the Anthropic API to generate four Markdown variants, commits them to `output/`, and deploys the Pages site.
+2. Push to `main`. GitHub Actions detects the change, calls DeepSeek to generate four Markdown variants, renders matching PDFs, commits them to `output/`, and deploys the Pages site.
 3. Your resume portfolio is live at `https://<your-username>.github.io/resume-forge/`.
 
 ## File structure
@@ -15,7 +15,7 @@ resume-forge/
 ├── data/
 │   └── resume.yml              # Edit this — single source of truth
 ├── scripts/
-│   └── build_resumes.py        # Calls Claude API, writes output/
+│   └── build_resumes.py        # Calls DeepSeek, writes output/
 ├── output/
 │   ├── resume_zh.md            # Full Chinese resume (auto-generated)
 │   ├── resume_en.md            # Full English resume (auto-generated)
@@ -38,12 +38,12 @@ cd resume-forge
 git remote add origin https://github.com/<your-username>/resume-forge.git
 ```
 
-### 2. Add the Anthropic API key secret
+### 2. Add the LLM API key secret
 
 In your GitHub repository: **Settings → Secrets and variables → Actions → New repository secret**
 
-- Name: `OPENROUTER_API_KEY`
-- Value: your OpenRouter API key (get one at https://openrouter.ai/keys)
+- Name: `LLM_API_KEY` (`OPENROUTER_API_KEY` also accepted as fallback)
+- Value: your DeepSeek API key (get one at https://platform.deepseek.com)
 
 ### 3. Enable GitHub Pages
 
@@ -65,7 +65,7 @@ The workflow triggers automatically because `data/resume.yml` changed. Watch it 
 
 ```bash
 pip install openai pyyaml
-export OPENROUTER_API_KEY=sk-or-...
+export LLM_API_KEY=sk-...
 python scripts/build_resumes.py
 ```
 
@@ -80,7 +80,7 @@ python -m http.server 8080
 
 - **Content**: edit `data/resume.yml`.
 - **Prompts**: tweak the `PROMPT_*` strings in `scripts/build_resumes.py` to adjust tone, length, or format.
-- **Model**: set the `OPENROUTER_MODEL` repository variable (Settings → Secrets and variables → Actions → Variables). Defaults to `deepseek/deepseek-chat`.
+- **Model**: set the `LLM_MODEL` repository variable (Settings → Secrets and variables → Actions → Variables), or `LLM_BASE_URL` for another OpenAI-compatible provider. Defaults to `deepseek-v4-flash` at `https://api.deepseek.com`.
 - **Styling**: all design is contained in `index.html` — edit the `<style>` block to change fonts, colors, or layout.
 
 ## Triggering a rebuild without changing resume.yml
