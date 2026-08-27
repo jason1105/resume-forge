@@ -42,10 +42,15 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Python dependencies
+      - name: Install system + Python dependencies
         run: |
+          # WeasyPrint 需要 pango/cairo；fonts-noto-cjk 保证 PDF 中文不乱码
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf-2.0-0 \
+            libffi-dev libcairo2 fonts-noto-cjk
           pip install --upgrade pip
-          pip install openai pyyaml
+          pip install openai pyyaml weasyprint markdown
 
       - name: Generate resume variants
         env:
@@ -60,6 +65,13 @@ jobs:
           JD_TITLE: ${{ github.event.inputs.jd_title }}
         run: |
           python scripts/build_resumes.py
+
+      - name: Generate PDF variants
+        env:
+          # 固定时间戳 → PDF 可复现，内容不变不产生二进制 churn
+          SOURCE_DATE_EPOCH: "1735689600"
+        run: |
+          python scripts/md_to_pdf.py
 
       - name: Commit generated output
         run: |

@@ -326,6 +326,11 @@
            viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
       Download .md
     </button>
+    <button class="btn btn-ghost" id="btn-download-pdf">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
+           viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      下载 PDF
+    </button>
     <button class="btn btn-primary" id="btn-print">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
            viewBox="0 0 24 24">
@@ -442,6 +447,22 @@
 
   /* ── Print ──────────────────────────────────────────────────────── */
   document.getElementById('btn-print').addEventListener('click', () => window.print());
+
+  /* ── Download PDF ───────────────────────────────────────────────── */
+  document.getElementById('btn-download-pdf').addEventListener('click', async () => {
+    const pdf = currentFile.replace(/\.md$/, '.pdf');
+    try {
+      const res = await fetch(pdf);
+      if (!res.ok) throw new Error(res.status);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = pdf.split('/').pop();
+      a.click(); URL.revokeObjectURL(url);
+    } catch {
+      alert('该版本暂无 PDF（可能内容为空未生成）。请切换到有内容的版本，或到 Actions 重新生成。');
+    }
+  });
 
   /* ── Download .md ───────────────────────────────────────────────── */
   document.getElementById('btn-download').addEventListener('click', async () => {
